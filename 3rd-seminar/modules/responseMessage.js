@@ -17,6 +17,7 @@ module.exports = {
   ALREADY_ID: "존재하는 ID 입니다.",
   NO_USER: "존재하지않는 유저 id 입니다.",
   MISS_MATCH_PW: "비밀번호가일치하지않습니다",
+  USER_READ_ALL_SUCCESS: "전체 유저 조회성공",
 
   /* 서버에러 */
   INTERNAL_SERVER_ERROR: "서버 내부 오류",
