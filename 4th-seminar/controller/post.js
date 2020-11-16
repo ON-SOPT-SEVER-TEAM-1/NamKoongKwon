@@ -6,6 +6,7 @@ const { User, Post, Like } = require('../models');
 module.exports = {
   createPost: async (req, res) => {
     const { title, contents, userId } = req.body;
+    const postImageUrl = req.file.location;
     try {
       const user = await User.findOne({
         where: {
@@ -15,7 +16,7 @@ module.exports = {
       const post = await Post.create({
         title,
         contents,
-        postImageUrl: "postImageUrl"
+        postImageUrl
       });
       await user.addPost(post);
       return res.status(statusCode.OK).send(util.success(statusCode.OK, responseMessage.CREATE_POST_SUCCESS, post));

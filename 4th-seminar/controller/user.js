@@ -131,13 +131,10 @@ module.exports = {
     }
   },
   delete: async (req, res) => {
-
-    const { userName } = req.body;
     const { id } = req.params;
 
-    if (!userName || !id) {
+    if (!id) {
       const missParameters = Object.entries({
-        userName,
         id,
       })
         .filter(it => it[1] == undefined).map(it => it[0]).join(',');
@@ -154,15 +151,13 @@ module.exports = {
       return res.status(statusCode.BAD_REQUEST).json(util.fail(statusCode.BAD_REQUEST, responseMessage.NO_USER));
     }
 
-    const updateUser = await User.update({
-      userName
-    }, {
+    await User.destroy({
       where: {
         id: id
       }
     });
 
     //5. status: 200 ,message: SIGNIN SUCCESS, data: id 반환 (비밀번호, salt 반환 금지!!)
-    return res.status(statusCode.OK).send(util.success(statusCode.OK, responseMessage.MEMBER_UPDATE_SUCCESS, updateUser));
+    return res.status(statusCode.OK).send(util.success(statusCode.OK, responseMessage.MEMBER_DELETE_SUCCESS));
   },
 }
