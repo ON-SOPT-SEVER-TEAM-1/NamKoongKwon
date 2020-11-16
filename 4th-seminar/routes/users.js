@@ -6,5 +6,6 @@ router.post('/signup', Controller.signup);
 router.post('/signin', Controller.signin);
 router.put('/:id', Controller.update);
 router.delete('/:id', Controller.delete);
+router.get('/:id', Controller.readOne);
 
 module.exports = router;

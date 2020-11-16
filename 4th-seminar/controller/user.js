@@ -2,7 +2,7 @@ const crypto = require('../modules/crypto');
 const util = require('../modules/util');
 const responseMessage = require('../modules/responseMessage');
 const statusCode = require('../modules/statusCode');
-const { User } = require('../models');
+const { User, Post } = require('../models');
 module.exports = {
   signup: async (req, res) => {
     // 1. req.body에서 데이터 가져오기
@@ -159,5 +159,38 @@ module.exports = {
 
     //5. status: 200 ,message: SIGNIN SUCCESS, data: id 반환 (비밀번호, salt 반환 금지!!)
     return res.status(statusCode.OK).send(util.success(statusCode.OK, responseMessage.MEMBER_DELETE_SUCCESS));
+  },
+  readOne: async (req, res) => {
+    // 1. req.body에서 데이터 가져오기
+    const { id } = req.params;
+
+    //2. request data 확인하기, email 또는 password data가 없다면 NullValue 반환
+    if (!id) {
+      const missParameters = Object.entries({
+        id
+      })
+        .filter(it => it[1] == undefined).map(it => it[0]).join(',');
+      res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, `${responseMessage.NULL_VALUE}, ${missParameters}`));
+      return;
+    }
+
+    try {
+      const userInfo = await User.findAll({
+        attributes: ['email', 'userName'],
+        include: [{
+          model: Post,
+        }, {
+          model: Post,
+          as: 'Liked',
+        }],
+        where: {
+          id
+        }
+      });
+      //7. status: 200 message: SING_UP_SUCCESS, data: id만 반환! (비밀번호, salt 반환 금지!!)
+      return res.status(statusCode.OK).send(util.success(statusCode.OK, responseMessage.MEMBER_READ_SUCCESS, userInfo));
+    } catch (err) {
+      console.error(err);
+    }
   },
 }
