@@ -57,4 +57,20 @@ module.exports = {
       return res.status(statusCode.INTERNAL_SERVER_ERROR).send(util.fail(statusCode.INTERNAL_SERVER_ERROR, responseMessage.CREATE_LIKE_FAIL));
     }
   },
+  deleteLike: async (req, res) => {
+    const PostId = req.params.postId;
+    const UserId = req.body.userId;
+    try {
+      await Like.destroy({
+        where: {
+          UserId,
+          PostId
+        },
+      });
+      return res.status(statusCode.OK).send(util.success(statusCode.OK, responseMessage.DELETE_LIKE_SUCCESS));
+    } catch (err) {
+      console.error(err);
+      return res.status(statusCode.INTERNAL_SERVER_ERROR).send(util.fail(statusCode.INTERNAL_SERVER_ERROR, responseMessage.DELETE_LIKE_FAIL));
+    }
+  },
 };
