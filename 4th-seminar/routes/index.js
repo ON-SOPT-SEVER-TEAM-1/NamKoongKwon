@@ -7,5 +7,5 @@ router.get('/', function (req, res, next) {
 });
 router.use('/user', require('./users'));
 router.use('/post', require('./posts'));
-
+router.use('/auth', require('./auth'));
 module.exports = router;

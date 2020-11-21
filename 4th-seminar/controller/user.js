@@ -1,4 +1,5 @@
 const crypto = require('../modules/crypto');
+const jwt = require('../modules/jwt');
 const util = require('../modules/util');
 const responseMessage = require('../modules/responseMessage');
 const statusCode = require('../modules/statusCode');
@@ -65,12 +66,12 @@ module.exports = {
     }
 
     //3. 존재하는 아이디인지 확인하기. 존재하지 않는 아이디면 NO USER 반환
-    const alreadyEmail = await User.findOne({
+    const user = await User.findOne({
       where: {
         email: email,
       }
     });
-    if (!alreadyEmail) {
+    if (!user) {
       console.log("존재하지 않는 아이디입니다.");
       return res.status(statusCode.BAD_REQUEST).json(util.fail(statusCode.BAD_REQUEST, responseMessage.NO_USER));
     }
@@ -79,13 +80,16 @@ module.exports = {
      * 4. 비밀번호 확인하기 - 로그인할 email의 salt를 DB에서 가져와서 사용자가 request로 보낸 password와
      * 암호화를 한후 디비에 저장되어있는 password와 일치하면 true일치하지 않으면 Miss Match password 반환
     */
-    const { hashed } = await crypto.encryptWithSalt(password, alreadyEmail.salt);
+    const { hashed } = await crypto.encryptWithSalt(password, user.salt);
     if (user.password != hashed) {
       return res.status(statusCode.BAD_REQUEST).json(util.fail(statusCode.BAD_REQUEST, responseMessage.MISS_MATCH_PW));
     }
-
+    const { accessToken, refreshToken } = await jwt.sign(user);
     //5. status: 200 ,message: SIGNIN SUCCESS, data: id 반환 (비밀번호, salt 반환 금지!!)
-    return res.status(statusCode.OK).send(util.success(statusCode.OK, responseMessage.SIGN_IN_SUCCESS, email));
+    return res.status(statusCode.OK).send(util.success(statusCode.OK, responseMessage.SIGN_IN_SUCCESS, {
+      accessToken,
+      refreshToken
+    }));
   },
   update: async (req, res) => {
 
@@ -193,4 +197,15 @@ module.exports = {
       console.error(err);
     }
   },
+  getProfile: async (req, res) => {
+    const { id } = req.decoded;
+    console.log(req.decoded);
+    try {
+      const user = await User.findOne({ where: { id }, attributes: ['id', 'userName', 'email'] });
+      return res.status(statusCode.OK).send(util.success(statusCode.OK, responseMessage.READ_PROFILE_SUCCESS, user));
+    } catch (err) {
+      console.log(err);
+      return res.status(statusCode.INTERNAL_SERVER_ERROR).send(util.fail(statusCode.INTERNAL_SERVER_ERROR, responseMessage.USER_READ_ALL_FAIL));
+    }
+  }
 }

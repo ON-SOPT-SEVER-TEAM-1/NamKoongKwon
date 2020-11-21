@@ -21,7 +21,7 @@ db.User.hasMany(db.Post, { onDelete: 'cascade' });
 db.Post.belongsTo(db.User);
 
 /** N: M    User : Post => Like */
-db.User.belongsToMany(db.Post, { through: 'Like', as: 'Liked' });
-db.Post.belongsToMany(db.User, { through: 'Like', as: 'Liker' });
+db.User.belongsToMany(db.Post, { through: 'Like' });
+db.Post.belongsToMany(db.User, { through: 'Like' });
 
 module.exports = db;
